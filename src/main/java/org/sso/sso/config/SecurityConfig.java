@@ -35,14 +35,18 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/params/**",
+            "/v3/api-docs.yaml",
+            "/v3/api-docs/swagger-config",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/configuration/**",
             "/auth/**",
+            "/params/**",
             "/ws/**"
     };
 
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
-
 
     @Autowired
     public SecurityConfig(@Lazy UserService userService, JwtRequestFilter jwtRequestFilter) {
@@ -57,8 +61,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PERMIT_ALL_ROUTES).permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("admin")
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/v3/api-docs.yaml").permitAll()
+                        .requestMatchers("/v3/api-docs/swagger-config").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/configuration/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/params/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
@@ -73,6 +86,7 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -83,11 +97,11 @@ public class SecurityConfig {
             throws Exception {
         return config.getAuthenticationManager();
     }
+
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults() {
         return new GrantedAuthorityDefaults("");
     }
-
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -104,7 +118,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
